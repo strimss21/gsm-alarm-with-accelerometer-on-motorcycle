@@ -2,7 +2,7 @@
 #include<Wire.h>
 SoftwareSerial mySerial(10,11);  // (Rx,Tx  > Tx,Rx)
 
-String numberForSms = "+79536219196";
+String numberForSms = "+71111111111";
 boolean status = false;
 boolean smsSent = false;
 
@@ -48,7 +48,7 @@ void loop(){
   readSms();
   if(status == true){
    if(gyroValue > 1000 && smsSent==false){
-    sendSms("Alarm", "+79536219196");
+    sendSms("Alarm", "+71111111111");
     smsSent = true;}}}
 
 /* Send SMS */
@@ -74,10 +74,10 @@ void readSms(){
   if(inputString.indexOf("true") > -1){
    status = true; 
    smsSent = false;
-   sendSms("The motorcycle is under protection!", "+79536219196");} 
+   sendSms("The motorcycle is under protection!", "+71111111111");} 
    
   if (inputString.indexOf("false") > -1){
     status = false;
-    sendSms("Not protected", "+79536219196");}}
+    sendSms("Not protected", "+71111111111");}}
   mySerial.println("AT+CMGDA=\"DEL ALL\"");
 }
