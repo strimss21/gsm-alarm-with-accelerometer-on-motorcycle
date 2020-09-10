@@ -2,9 +2,10 @@
 #include<Wire.h>
 SoftwareSerial mySerial(10,11);  // (Rx,Tx  > Tx,Rx)
 
-String numberForSms = "+71111111111";
+String numberForSms = "+79111111111";
 boolean status = false;
 boolean smsSent = false;
+int countSentSms = 0;
 
 char incomingByte; 
 String inputString;
@@ -32,10 +33,16 @@ void setup(){
   mySerial.println("AT+CSCB=1");       // Disable receiving special messages
   delay(1000);
   mySerial.println("AT+CNMI=1,2,0,0,0"); // Processing new messages  
-  mySerial.println("AT+CMGL=\"REC UNREAD\""); // Read unread messages
+  mySerial.println("AT+CMGL=\"REC UNREAD\",0"); // Read unread messages
+  mySerial.println("AT+CPMS?"); // how much sms at storage
 }
 
 void loop(){
+  myloop();
+  
+  }
+
+  void myloop(){
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
@@ -43,41 +50,63 @@ void loop(){
   AcX=Wire.read()<<8|Wire.read();  // 0x3B (ACCEL_XOUT_H) & 0x3C (ACCEL_XOUT_L)     
   
   Serial.print("AcX = "); Serial.println(AcX);
+  Serial.print("status = "); Serial.println(status);
+  Serial.print("smsSent = "); Serial.println(smsSent);
+
   gyroValue = AcX;
   delay(1000);
   readSms();
   if(status == true){
-   if(gyroValue > 1000 && smsSent==false){
-    sendSms("Alarm", "+71111111111");
-    smsSent = true;}}}
+   if(gyroValue > 4000 && smsSent==false){
+    sendSms("Alarm", "+79111111111");
+    smsSent = true;
+    Serial.println("SMS was sent");}}
+  }
 
 /* Send SMS */
 void sendSms(String text, String phone) {
+  Serial.println(" Starting sendSms method() ");
   mySerial.println("AT+CMGS=\"" + phone + "\""); 
   delay(1000);
   mySerial.print(text);                         
   delay(1000);
   mySerial.print((char)26);       
   delay(3000);  
-  Serial.print("SMS sent");}
+  }
   
 /* Read SMS */
 void readSms(){
+  Serial.println("Starting method readSms() ");
  if(mySerial.available()){
-  delay(300);
+  delay(2000);
   while(mySerial.available()){
   incomingByte = mySerial.read();
-  inputString += incomingByte;}
+  inputString += incomingByte;
+  Serial.println("It is while ");
+  Serial.println("countSentSms = ");
+  Serial.println(countSentSms);
+}
   
-  delay(10);      
-  Serial.println(inputString);
-  if(inputString.indexOf("true") > -1){
+  delay(500);      
+  Serial.print("It is text for sms "); Serial.println(inputString);
+  if(inputString.indexOf("tr") > -1){
+   Serial.println("Ihis is readSms, where sms = true ");
    status = true; 
-   smsSent = false;
-   sendSms("The motorcycle is under protection!", "+71111111111");} 
+   sendSms("MOTO ARM! ", "+79111111111");
+   smsSent = true;
+   ++countSentSms;}
    
-  if (inputString.indexOf("false") > -1){
+  if (inputString.indexOf("fa") > -1){
     status = false;
-    sendSms("Not protected", "+71111111111");}}
-  mySerial.println("AT+CMGDA=\"DEL ALL\"");
+    countSentSms = 0;
+    sendSms("Not protected ", "+79111111111");
+    }
+    
+    if (inputString.indexOf("OK") == -1){    
+        mySerial.println("AT+CMGDA=\"DEL ALL\"");      
+        delay(1000); 
+    }
+        inputString = "";
+  
+}
 }
