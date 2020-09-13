@@ -2,7 +2,7 @@
 #include<Wire.h>
 SoftwareSerial mySerial(10,11);  // (Rx,Tx  > Tx,Rx)
 
-String numberForSms = "+79536219196";
+String numberForSms = "+7951111111";
 boolean status = false;
 boolean smsSent = false;
 int countSentSms = 0;
@@ -55,7 +55,7 @@ void loop(){
   delay(4000);
   readSms();
   if(status == true && gyroValue >= 4000 && countSentSms < 3){
-    sendSms("Alarm", "+79536219196");
+    sendSms("Alarm", "+7951111111");
     smsSent = true;
     countSentSms ++;
     Serial.println("SMS was sent");}
@@ -90,12 +90,12 @@ void readSms(){
   if(inputString.indexOf("tr") > -1){
    Serial.println("Ihis is readSms, where sms = true ");
    status = true; 
-   sendSms("MOTO ARM! ", "+79536219196");
+   sendSms("MOTO ARM! ", "+7951111111");
    }
    
   if (inputString.indexOf("fa") > -1){
     status = false;
-    sendSms("Not protected ", "+79536219196");
+    sendSms("Not protected ", "+7951111111");
     countSentSms = 0;
     }
     
