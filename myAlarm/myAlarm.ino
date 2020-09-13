@@ -2,7 +2,7 @@
 #include<Wire.h>
 SoftwareSerial mySerial(10,11);  // (Rx,Tx  > Tx,Rx)
 
-String numberForSms = "+79111111111";
+String numberForSms = "+79536219196";
 boolean status = false;
 boolean smsSent = false;
 int countSentSms = 0;
@@ -38,10 +38,7 @@ void setup(){
 }
 
 void loop(){
-  myloop();
-  
-  }
-
+  myloop();}
   void myloop(){
   Wire.beginTransmission(MPU_addr);
   Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
@@ -52,15 +49,16 @@ void loop(){
   Serial.print("AcX = "); Serial.println(AcX);
   Serial.print("status = "); Serial.println(status);
   Serial.print("smsSent = "); Serial.println(smsSent);
+  Serial.println("--------------------");
 
   gyroValue = AcX;
-  delay(1000);
+  delay(4000);
   readSms();
-  if(status == true){
-   if(gyroValue > 4000 && smsSent==false){
-    sendSms("Alarm", "+79111111111");
+  if(status == true && gyroValue >= 4000 && countSentSms < 3){
+    sendSms("Alarm", "+79536219196");
     smsSent = true;
-    Serial.println("SMS was sent");}}
+    countSentSms ++;
+    Serial.println("SMS was sent");}
   }
 
 /* Send SMS */
@@ -92,14 +90,13 @@ void readSms(){
   if(inputString.indexOf("tr") > -1){
    Serial.println("Ihis is readSms, where sms = true ");
    status = true; 
-   sendSms("MOTO ARM! ", "+79111111111");
-   smsSent = true;
-   ++countSentSms;}
+   sendSms("MOTO ARM! ", "+79536219196");
+   }
    
   if (inputString.indexOf("fa") > -1){
     status = false;
+    sendSms("Not protected ", "+79536219196");
     countSentSms = 0;
-    sendSms("Not protected ", "+79111111111");
     }
     
     if (inputString.indexOf("OK") == -1){    
